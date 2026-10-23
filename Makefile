@@ -22,16 +22,20 @@ example: $(TARGET)
 	cp $(DIR)/out_level-$(L)_0-example.txt ~/
 	@echo "Copied example output to ~/"
 
-# Compile and run the 5 official test cases explicitly, then copy to home
+# Compile and run all official test cases present, then copy to home
 solve: $(TARGET)
-	@echo "Solving Level $(L) (Test cases 1 to 5)..."
-	./$(TARGET) < $(DIR)/in_level-$(L)_1-small.txt > $(DIR)/out_level-$(L)_1-small.txt
-	./$(TARGET) < $(DIR)/in_level-$(L)_2-small.txt > $(DIR)/out_level-$(L)_2-small.txt
-	./$(TARGET) < $(DIR)/in_level-$(L)_3-medium.txt > $(DIR)/out_level-$(L)_3-medium.txt
-	./$(TARGET) < $(DIR)/in_level-$(L)_4-medium.txt > $(DIR)/out_level-$(L)_4-medium.txt
-	./$(TARGET) < $(DIR)/in_level-$(L)_5-large.txt > $(DIR)/out_level-$(L)_5-large.txt
+	@echo "Solving Level $(L)..."
+	@for f in $(DIR)/in_level-$(L)_*.txt; do \
+		[ -f "$$f" ] || continue; \
+		base=$$(basename "$$f"); \
+		if [ "$$base" != "in_level-$(L)_0-example.txt" ]; then \
+			out="$(DIR)/out_$${base#in_}"; \
+			echo "Running $$f -> $$out"; \
+			./$(TARGET) < "$$f" > "$$out"; \
+		fi; \
+	done
 	cp $(DIR)/out_level-$(L)_*.txt ~/
-	@echo "Copied all 5 outputs to ~/"
+	@echo "Copied outputs to ~/"
 
 clean:
 	rm -f $(TARGET)
