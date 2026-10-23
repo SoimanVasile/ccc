@@ -29,7 +29,8 @@ void solve_board() {
         cin >> grid[r];
     }
 
-    // Find emitter(s) and trace laser
+    // Count beam hits for every cell
+    vector<vector<int>> hits(H, vector<int>(W, 0));
     for (int r = 0; r < H; ++r) {
         for (int c = 0; c < W; ++c) {
             char ch = grid[r][c];
@@ -41,11 +42,28 @@ void solve_board() {
                     if (grid[cr][cc] == '*' || (grid[cr][cc] >= '1' && grid[cr][cc] <= '6')) {
                         break;
                     }
-                    if (grid[cr][cc] == 'O') {
-                        grid[cr][cc] = 'M';
+                    if (grid[cr][cc] == 'O' || grid[cr][cc] == 'M') {
+                        hits[cr][cc]++;
                     }
                     cr += d.dr;
                     cc += d.dc;
+                }
+            }
+        }
+    }
+
+    // Apply rules:
+    // 0 or 1 hit: unchanged
+    // 2 hits: 'M' (matter created)
+    // 3 or more hits: 'O' (matter destroyed)
+    for (int r = 0; r < H; ++r) {
+        for (int c = 0; c < W; ++c) {
+            if (grid[r][c] == 'O' || grid[r][c] == 'M') {
+                int h = hits[r][c];
+                if (h == 2) {
+                    grid[r][c] = 'M';
+                } else if (h >= 3) {
+                    grid[r][c] = 'O';
                 }
             }
         }
